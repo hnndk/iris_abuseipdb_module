@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: iris_abuseipdb_module
+Version: 0.1.0
+Summary: iris_abuseipdb_module` is a IRIS pipeline/processor module created with https://github.com/dfir-iris/iris-skeleton-module
+Home-page: https://github.com/hnndk/iris_abuseipdb_module
+Author: iris
+Author-email: andre.c.carvalhais@aubay.pt
+License: MIT
+Requires-Python: >=3.9
+License-File: LICENSE
+License-File: AUTHORS.txt
+Dynamic: author
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: requires-python
+Dynamic: summary
