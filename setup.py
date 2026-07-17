@@ -8,7 +8,6 @@ setup(
     url='https://github.com/hnndk/iris_abuseipdb_module',
     license='MIT',
     author='iris',
-    author_email='andre.c.carvalhais@aubay.pt',
     description='iris_abuseipdb_module` is a IRIS pipeline/processor module created with https://github.com/dfir-iris/iris-skeleton-module',
     install_requires=[]
 )
