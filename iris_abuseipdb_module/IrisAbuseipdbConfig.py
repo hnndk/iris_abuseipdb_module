@@ -11,7 +11,7 @@
 module_name = "IrisAbuseipdb"
 module_description = "Enrich IP and Domain IOCs with AbuseIPDB threat intelligence"
 interface_version = 1.1
-module_version = 1.0
+module_version = 1.1
 
 pipeline_support = False
 pipeline_info = {}
