@@ -119,7 +119,7 @@ abuseipdb_in_raw.renderer.setScrollMargin(8, 5);
     {
         "param_name": "abuseipdb_domain_report_template",
         "param_human_name": "Domain report template",
-        "param_description": "Template used to display AbuseIPDB results for domains (note: limited support)",
+        "param_description": "Template used to display AbuseIPDB results for domains",
         "default": """<div class="row">
     <div class="col-12">
         <div class="accordion">
