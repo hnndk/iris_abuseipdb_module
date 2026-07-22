@@ -106,30 +106,6 @@ class IrisAbuseipdbInterface(IrisModuleInterface):
         return InterfaceStatus.I2Success(data=data, logs=list(self.message_queue))
 
 
-    def _is_ip_address(self, value: str) -> bool:
-        """
-        Check if a string is a valid IPv4 or IPv6 address
-        
-        :param value: String to check
-        :return: True if valid IP address, False otherwise
-        """
-        # IPv4 pattern
-        ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
-        if ipv4_pattern.match(value):
-            # Validate each octet is between 0-255
-            octets = value.split('.')
-            for octet in octets:
-                if int(octet) < 0 or int(octet) > 255:
-                    return False
-            return True
-        
-        # IPv6 pattern (simplified)
-        ipv6_pattern = re.compile(r'^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:){1,7}:$|^::$')
-        if ipv6_pattern.match(value):
-            return True
-            
-        return False
-
     def _handle_ioc(self, data) -> InterfaceStatus.IIStatus:
         """
         Handle the IOC data the module just received. The module registered
@@ -147,46 +123,21 @@ class IrisAbuseipdbInterface(IrisModuleInterface):
 
         in_status = InterfaceStatus.IIStatus(code=InterfaceStatus.I2CodeNoError)
 
-        # Lista de tipos de IOC que são IPs
-        ip_ioc_types = ['ip', 'ip-src', 'ip-dst', 'ip-any', 'ipv4', 'ipv6', 'ipv4-src', 'ipv4-dst', 'ipv6-src', 'ipv6-dst']
-        
-        # Lista de tipos de IOC que são domínios
-        domain_ioc_types = ['domain', 'hostname', 'domain-src', 'domain-dst', 'fqdn']
-
         for element in data:
             ioc_type = element.ioc_type.type_name.lower()
             ioc_value = element.ioc_value
             
             self.log.info(f'Processing IOC: {ioc_value} (type: {ioc_type})')
             
-            # Verifica se é um tipo de IP pelo nome
-            if ioc_type in ip_ioc_types:
+            # Verifica se é um IP (ip-src, ip-dst, ip-any, etc)
+            if 'ip-' in element.ioc_type.type_name:
                 self.log.info(f'Detected IP IOC type: {ioc_type} with value: {ioc_value}')
                 status = abuseipdb_handler.handle_ip(ioc=element)
                 in_status = InterfaceStatus.merge_status(in_status, status)
             
-            # Verifica se o valor parece ser um IP (mesmo que o tipo não seja específico)
-            elif self._is_ip_address(ioc_value):
-                self.log.info(f'Detected IP address from value: {ioc_value} (type: {ioc_type})')
-                status = abuseipdb_handler.handle_ip(ioc=element)
-                in_status = InterfaceStatus.merge_status(in_status, status)
-            
             # Verifica se é um domínio
-            elif ioc_type in domain_ioc_types or 'domain' in ioc_type:
+            elif 'domain' in element.ioc_type.type_name:
                 self.log.info(f'Detected domain: {ioc_value}')
-                status = abuseipdb_handler.handle_domain(ioc=element)
-                in_status = InterfaceStatus.merge_status(in_status, status)
-            
-            # Verifica se é uma URL (extrai o domínio)
-            elif 'url' in ioc_type:
-                self.log.info(f'Detected URL: {ioc_value}')
-                # Extrai domínio da URL e processa
-                status = abuseipdb_handler.handle_domain(ioc=element)
-                in_status = InterfaceStatus.merge_status(in_status, status)
-            
-            # Suporte para FQDN (Fully Qualified Domain Name)
-            elif 'fqdn' in ioc_type:
-                self.log.info(f'Detected FQDN: {ioc_value}')
                 status = abuseipdb_handler.handle_domain(ioc=element)
                 in_status = InterfaceStatus.merge_status(in_status, status)
             
