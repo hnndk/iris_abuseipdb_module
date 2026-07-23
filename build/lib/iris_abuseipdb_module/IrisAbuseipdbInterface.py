@@ -122,20 +122,18 @@ class IrisAbuseipdbInterface(IrisModuleInterface):
 
         in_status = InterfaceStatus.IIStatus(code=InterfaceStatus.I2CodeNoError)
 
+        # Lista de tipos de IP que o módulo pode processar
+        ip_types = ['ip', 'ip-src', 'ip-dst', 'ipv4', 'ipv6']
+        
         for element in data:
             # Check that the IOC we receive is of type the module can handle and dispatch
             if 'domain' in element.ioc_type.type_name:
                 status = abuseipdb_handler.handle_domain(ioc=element)
                 in_status = InterfaceStatus.merge_status(in_status, status)
-
-            #elif element.ioc_type.type_name in ['md5', 'sha224', 'sha256', 'sha512']:
-            #    status = abuseipdb_handler.handle_hash(ioc=element)
-            #    in_status = InterfaceStatus.merge_status(in_status, status)
-            #
-            # elif element.ioc_type.type_name in etc...
-
+            elif any(ip_type in element.ioc_type.type_name for ip_type in ip_types):
+                status = abuseipdb_handler.handle_ip(ioc=element)
+                in_status = InterfaceStatus.merge_status(in_status, status)
             else:
                 self.log.error(f'IOC type {element.ioc_type.type_name} not handled by abuseipdb module. Skipping')
 
         return in_status(data=data)
-    
